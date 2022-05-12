@@ -1,5 +1,5 @@
 "use strict";
-import { showAlert, findElement } from "./helperFunctions.js";
+import { showAlert, findElement, fakeAjaxCall } from "./helperFunctions.js";
 
 const inputErrorClassName = 'input-error-validation';
 
@@ -22,13 +22,28 @@ tellFriendsButton.addEventListener('click', (event) => {
     showAlert(event, "Save for Later button clicked");
 });
 
-donationButton.addEventListener('click', (event) => {
+donationButton.addEventListener('click', function (event) {
     donationInputContainer.classList.remove(inputErrorClassName);
+
     const inputValue = donationInput.value;
+    const initialTextValue = this.innerText;
+
+    this.disabled = true;
+    this.innerText = "...";
 
     if (Number.parseInt(inputValue) < 5 || isNaN(Number.parseInt(inputValue))) {
         donationInputContainer.classList.add(inputErrorClassName);
     } else {
-        showAlert(event, `Sending your ${inputValue} amount to a good cause.`)
+        fakeAjaxCall()
+        .then(() => {
+            showAlert(event, `Sending your ${inputValue} amount to a good cause.`);
+        })
+        .catch(() => {
+            showAlert(null, "Error on Ajax call. Try again later!");
+        })
+        .finally(() => {
+            this.disabled = false;
+            this.innerText = initialTextValue;
+        });
     }
 });

@@ -134,6 +134,11 @@ button {
     border-radius: 5px;
 }
 
+.form-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .form-controls div {
     display: flex;
     align-items: center;
