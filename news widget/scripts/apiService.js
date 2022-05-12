@@ -1,10 +1,12 @@
+import { DomInteract } from "./domInteract.js";
 
 export class ApiService {
     _newsUrl;
     _newsData;
     _fetchDataCallback;
+    _domInteraction;
 
-    constructor(url, fetchDataCallback = () => {}) {
+    constructor(url) {
         const urlPattern = /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
         const regex = new RegExp(urlPattern);
 
@@ -17,11 +19,11 @@ export class ApiService {
         }
         this._newsUrl = url;
         this._newsData = [];
-        this._fetchDataCallback = fetchDataCallback;
+        this._domInteraction = new DomInteract();
 
-        setInterval(() => {
-            this.fetchNews(this._fetchDataCallback);
-        }, 1000 * 60 * 3);
+        // setInterval(() => {
+        //     this.fetchNews();
+        // }, 1000 * 60 * 3);
         console.info('Constructor executed correctly.')
     }
 
@@ -40,10 +42,14 @@ export class ApiService {
             })
             .then( ({ news }) => {
                 this._newsData = news;
-                this._fetchDataCallback();
+                this._domInteraction.hideSpinner();
+                const articleTags = news.map((n) => {
+                    return this._domInteraction.generateNewsItem(n.title, n.details);
+                });
+                this._domInteraction.appendArticlesToPage(articleTags);
             })
             .catch(err => {
-                console.log('Error downloading news');
+                console.log('Error downloading news', err);
             });
     }
 }
