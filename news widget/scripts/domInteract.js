@@ -1,5 +1,6 @@
-const spinner = document.querySelector("p");
-const newsList = document.querySelector("ul");
+const spinner = document.querySelector("#spinner");
+const newsList = document.querySelector("#articles");
+const controls = document.querySelector("#articleSectionControls");
 
 export class DomInteract {
     hideSpinner() {
@@ -13,7 +14,11 @@ export class DomInteract {
     generateNewsItem(title, text) {
         const article = document.createElement("article");
         const articleTitle = document.createElement("h3");
-        articleTitle.innerText = title;
+        const link = document.createElement("a");
+
+        link.innerText = title;
+        link.href = "#";
+        articleTitle.append(link);
 
         const articleText = document.createElement("p");
         articleText.innerText = text;
@@ -23,20 +28,46 @@ export class DomInteract {
         return article;
     }
 
+    generateArticleIndicator(dataIndex) {
+        const indicator = document.createElement("button");
+        indicator.classList.add("page-indicator");
+        indicator.setAttribute("data-index", dataIndex);
+
+        return indicator;
+    }
+
     appendArticlesToPage(nodes) {
-        let containerDiv = document.createElement("div");
-        let currentCount = 1;
-        for(let i = 0; i < nodes.length; i++) {
-            if (currentCount <= 5) {
-                containerDiv.append(nodes[i]);
-                currentCount++;
-            } else {
-                currentCount = 1;
-                newsList.append(containerDiv);
-                containerDiv = document.createElement('div');
-                containerDiv.append(nodes[i]);
+        controls.innerHTML = "";
+        newsList.innerHTML = "";
+
+        const perPage = 5;
+        const totalPages = Math.ceil(nodes.length / perPage);
+        const controlsTitle = document.createElement("p");
+        const bulletsContaienr = document.createElement('div');
+
+        bulletsContaienr.classList.add('page-indicators');
+        controlsTitle.innerText = "Latest news";
+        controls.append(controlsTitle);
+
+        for (let i = 0; i < totalPages; i++) {
+            const offset = i * perPage;
+            const containerDiv = document.createElement("div");
+            containerDiv.classList.add("news-card");
+            containerDiv.setAttribute("data-index", i);
+            const btn = this.generateArticleIndicator(i);
+
+            if (i === 0) {
+                containerDiv.classList.add('current')
             }
+
+            const paginatedItems = nodes.slice(offset).slice(0, perPage);
+            paginatedItems.forEach(el => {
+                containerDiv.append(el);
+            });
+
+            newsList.append(containerDiv);
+            bulletsContaienr.append(btn);
         }
-        newsList.append(containerDiv);
+        controls.append(bulletsContaienr);
     }
 }

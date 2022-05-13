@@ -5,8 +5,9 @@ export class ApiService {
     _newsData;
     _fetchDataCallback;
     _domInteraction;
+    _contentLoadedCallback;
 
-    constructor(url) {
+    constructor(url, contentLoadedCallback) {
         const urlPattern = /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
         const regex = new RegExp(urlPattern);
 
@@ -20,11 +21,11 @@ export class ApiService {
         this._newsUrl = url;
         this._newsData = [];
         this._domInteraction = new DomInteract();
-
-        // setInterval(() => {
-        //     this.fetchNews();
-        // }, 1000 * 60 * 3);
-        console.info('Constructor executed correctly.')
+        this._contentLoadedCallback = contentLoadedCallback;
+        setInterval(() => {
+            this.fetchNews();
+        }, 1000 * 60 * 3);
+        console.info('Constructor executed correctly.');
     }
 
     get newsUrl() {
@@ -47,6 +48,7 @@ export class ApiService {
                     return this._domInteraction.generateNewsItem(n.title, n.details);
                 });
                 this._domInteraction.appendArticlesToPage(articleTags);
+                this._contentLoadedCallback();
             })
             .catch(err => {
                 console.log('Error downloading news', err);
